@@ -124,16 +124,19 @@ Berikut adalah informasi mengenai dataset yang digunakan:
 
 #### Analisis Data Eksploratif
 
-1. **Distribusi Rating**:
+1. **Pemeriksaan Nilai Hilang dan Data Duplikat**
+   Hasil analisis menunjukkan bahwa dataset *ratings* dan *users* tidak memiliki nilai yang hilang. Sementara itu, pada dataset *movies*, ditemukan sejumlah nilai yang hilang, yaitu: 1.682 nilai pada kolom `video_release_date`, 1 nilai pada `release_date`, dan 3 nilai pada `IMDb_URL`. Namun, karena ketiga kolom tersebut tidak digunakan dalam proses pemodelan sistem rekomendasi, kekurangan data ini tidak berdampak signifikan terhadap analisis yang dilakukan. Selain itu, hasil pemeriksaan terhadap data duplikat mengonfirmasi bahwa tidak terdapat data yang terduplikasi pada ketiga dataset. Dengan demikian, kita dapat menyimpulkan bahwa data telah bersih dan siap digunakan untuk tahap analisis dan pemodelan selanjutnya.
+
+2. **Distribusi Rating**:
    Dataset memiliki distribusi rating yang cenderung positif, dengan mayoritas rating adalah 4 dari skala 1-5. Hal ini menunjukkan bahwa pengguna cenderung memberikan rating pada film yang mereka sukai.
 
-2. **Distribusi Genre**:
+3. **Distribusi Genre**:
    Genre "Drama" adalah genre yang paling umum dalam dataset, diikuti oleh "Comedy" dan "Action". Genre yang paling sedikit adalah "Film-Noir" dan "Documentary".
 
-3. **Aktivitas Pengguna**:
+4. **Aktivitas Pengguna**:
    Terdapat variasi yang signifikan dalam jumlah rating yang diberikan oleh pengguna. Beberapa pengguna sangat aktif dan memberikan rating pada ratusan film, sementara yang lain hanya memberikan rating pada jumlah film minimum (20).
 
-4. **Popularitas Film**:
+5. **Popularitas Film**:
    Film-film tertentu menerima jauh lebih banyak rating dibandingkan yang lain, menunjukkan adanya film-film populer yang ditonton oleh banyak orang. Film "Star Wars (1977)" adalah salah satu film yang paling banyak dirating.
 
 ## Data Preparation
