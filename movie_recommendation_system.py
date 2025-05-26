@@ -104,6 +104,31 @@ print(movies.isnull().sum())
 print("\nNilai yang hilang pada dataset users:")
 print(users.isnull().sum())
 
+# Pemeriksaan data duplikat dalam dataset
+print("Pemeriksaan Data Duplikat:")
+
+# Memeriksa duplikat dalam dataset ratings
+ratings_duplicates = ratings.duplicated().sum()
+print(f"Jumlah data duplikat dalam dataset ratings: {ratings_duplicates}")
+
+# Memeriksa duplikat berdasarkan user_id dan movie_id (kombinasi yang seharusnya unik)
+user_movie_duplicates = ratings.duplicated(subset=['user_id', 'movie_id']).sum()
+print(f"Jumlah data duplikat berdasarkan kombinasi user_id dan movie_id: {user_movie_duplicates}")
+
+# Memeriksa duplikat dalam dataset movies berdasarkan movie_id
+movies_duplicates = movies.duplicated(subset=['movie_id']).sum()
+print(f"Jumlah data duplikat berdasarkan movie_id dalam dataset movies: {movies_duplicates}")
+
+# Memeriksa duplikat dalam dataset users berdasarkan user_id
+users_duplicates = users.duplicated(subset=['user_id']).sum()
+print(f"Jumlah data duplikat berdasarkan user_id dalam dataset users: {users_duplicates}")
+
+# Jika terdapat duplikat, tampilkan contoh data duplikat (misalnya untuk ratings)
+if user_movie_duplicates > 0:
+    print("\nContoh data duplikat dalam dataset ratings:")
+    duplicated_pairs = ratings[ratings.duplicated(subset=['user_id', 'movie_id'], keep=False)]
+    print(duplicated_pairs.sort_values(by=['user_id', 'movie_id']).head())
+
 # Melihat statistik deskriptif dari dataset ratings
 ratings.describe()
 
@@ -564,7 +589,7 @@ Dari hasil evaluasi di atas, kita dapat menyimpulkan:
 
 1. **Content-Based Filtering**: Model ini memberikan rekomendasi dengan rata-rata presisi genre yang cukup baik, artinya film yang direkomendasikan memiliki kemiripan genre dengan film yang ditanyakan. Hal ini sesuai dengan konsep content-based filtering yang fokus pada kemiripan konten.
 
-2. **Collaborative Filtering**: Model ini memberikan hasil yang cukup baik dengan nilai RMSE 0.9699 dan MAE 0.7513 yang menunjukkan ketepatan prediksi rating, serta accuracy sebesar 42.52% yang menunjukkan proporsi prediksi yang mendekati rating asli. Setelah beberapa kali training dengan parameter yang sama, kita mendapatkan sedikit peningkatan dari hasil sebelumnya (RMSE 0.9763, Accuracy 42.36%), menunjukkan bahwa stabilitas training neural network memengaruhi hasil akhir.
+2. **Collaborative Filtering**: Model ini memberikan hasil yang cukup baik dengan nilai RMSE 0.9699 dan MAE 0.7513 yang menunjukkan ketepatan prediksi rating, serta accuracy sebesar 42.52% yang menunjukkan proporsi prediksi yang mendekati rating asli. Setelah beberapa kali training dengan parameter yang sama, kita mendapatkan sedikit peningkatan dari hasil sebelumnya (RMSE 0.9763, Accuracy 42.52%), menunjukkan bahwa stabilitas training neural network memengaruhi hasil akhir.
 
 3. **Perbandingan**: Kedua pendekatan memiliki kelebihan dan kelemahan masing-masing. Content-based filtering lebih baik untuk merekomendasikan item baru atau tidak populer, sementara collaborative filtering lebih baik untuk menemukan preferensi baru dari pengguna.
 
