@@ -548,12 +548,11 @@ Untuk collaborative filtering, kita sudah mengevaluasi model dengan metrik RMSE,
 
 # Menampilkan metrik evaluasi untuk Collaborative Filtering
 print("Metrik Evaluasi untuk Collaborative Filtering:")
-print(f"RMSE: 0.9699")
-print(f"MAE: 0.7513")
-print(f"Accuracy: 0.4252")
+print(f"RMSE: {evaluation_metrics['rmse']:.4f}")
+print(f"MAE: {evaluation_metrics['mae']:.4f}")
+print(f"Accuracy: {evaluation_metrics['accuracy']:.4f}")
 
-# Catatan: Metrik ini sedikit berbeda dari evaluasi sebelumnya karena dilakukan optimasi hyper-parameter
-# dan peningkatan stabilitas training melalui seed management yang lebih baik
+# Menggunakan hasil evaluasi yang sudah dihitung sebelumnya dari model
 
 """### 5.3 Perbandingan Metode
 
