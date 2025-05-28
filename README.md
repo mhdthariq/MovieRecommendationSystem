@@ -160,17 +160,7 @@ movies['genres'] = movies.apply(create_genre_string, axis=1)
 
 Sebagai contoh, film yang sebelumnya memiliki nilai 1 pada kolom "Action" dan "Adventure" akan memiliki string genre "Action Adventure". Transformasi ini diperlukan untuk tahapan selanjutnya yaitu ekstraksi fitur dengan TF-IDF.
 
-### 2. Ekstraksi Fitur dengan TF-IDF
-
-TF-IDF (Term Frequency-Inverse Document Frequency) adalah metode statistik yang digunakan untuk mengevaluasi pentingnya sebuah kata dalam dokumen dari kumpulan dokumen. Dalam konteks sistem rekomendasi film, kita menggunakan TF-IDF untuk mengekstrak fitur dari string genre film dan mengubahnya menjadi vektor numerik yang merepresentasikan karakteristik film. 
-
-Proses ini terdiri dari dua komponen:
-- **Term Frequency (TF)**: Mengukur seberapa sering sebuah kata muncul dalam dokumen. Dalam kasus ini, menghitung frekuensi genre dalam string genre film.
-- **Inverse Document Frequency (IDF)**: Mengukur pentingnya sebuah kata. Kata yang jarang muncul di seluruh dokumen memiliki nilai IDF tinggi. Dalam konteks film, genre yang jarang (seperti "Film-Noir") akan memiliki bobot lebih tinggi dibanding genre yang umum (seperti "Drama").
-
-Tahap ini akan dilakukan pada bagian modeling untuk Content-Based Filtering.
-
-### 3. Normalisasi Rating
+### 2. Normalisasi Rating dan Pembagian Data
 
 Untuk Collaborative Filtering, rating yang awalnya dalam skala 1-5 dinormalisasi menjadi skala 0-1. Hal ini dilakukan untuk memudahkan proses pelatihan model neural network.
 
@@ -180,7 +170,32 @@ ratings['normalized_rating'] = ratings['rating'] / 5.0
 
 Normalisasi rating diperlukan karena fungsi aktivasi sigmoid pada model neural network menghasilkan output dalam rentang 0-1.
 
-### 4. Pembagian Data Training dan Testing
+Data rating dibagi menjadi training set (80%) dan testing set (20%) untuk melatih dan mengevaluasi model Collaborative Filtering menggunakan metode train_test_split dari scikit-learn.
+
+```python
+train_data, test_data = train_test_split(ratings, test_size=0.2, random_state=42)
+```
+
+Pembagian data ini penting untuk mengevaluasi kinerja model pada data yang belum pernah dilihat model sebelumnya, sehingga dapat menilai kemampuan generalisasi model.
+
+### 3. Ekstraksi Fitur dengan TF-IDF
+
+TF-IDF (Term Frequency-Inverse Document Frequency) adalah metode statistik yang digunakan untuk mengevaluasi pentingnya sebuah kata dalam dokumen dari kumpulan dokumen. Dalam konteks sistem rekomendasi film, kita menggunakan TF-IDF untuk mengekstrak fitur dari string genre film dan mengubahnya menjadi vektor numerik yang merepresentasikan karakteristik film. 
+
+Proses ini terdiri dari dua komponen:
+- **Term Frequency (TF)**: Mengukur seberapa sering sebuah kata muncul dalam dokumen. Dalam kasus ini, menghitung frekuensi genre dalam string genre film.
+- **Inverse Document Frequency (IDF)**: Mengukur pentingnya sebuah kata. Kata yang jarang muncul di seluruh dokumen memiliki nilai IDF tinggi. Dalam konteks film, genre yang jarang (seperti "Film-Noir") akan memiliki bobot lebih tinggi dibanding genre yang umum (seperti "Drama").
+
+```python
+# Menggunakan TF-IDF untuk mengkonversi data genre menjadi vektor
+tfidf = TfidfVectorizer(stop_words='english')
+tfidf_matrix = tfidf.fit_transform(movies['genres'])
+
+# Menghitung kemiripan kosinus antar film
+cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+```
+
+### 4. Pembuatan Dataset dan DataLoader PyTorch
 
 Data rating dibagi menjadi training set (80%) dan testing set (20%) untuk melatih dan mengevaluasi model Collaborative Filtering menggunakan metode train_test_split dari scikit-learn.
 
@@ -229,18 +244,8 @@ Content-based filtering merekomendasikan film berdasarkan kemiripan konten atau 
 4. Merekomendasikan item yang paling mirip dengan item referensi
 
 **Tahapan implementasi**:
-1. Menggunakan TF-IDF Vectorizer untuk mengkonversi string genre menjadi vektor numerik
-2. Menghitung cosine similarity antar film berdasarkan vektor TF-IDF
-3. Membuat fungsi rekomendasi yang mengembalikan top-N film yang paling mirip dengan film yang ditentukan
-
-```python
-# Menggunakan TF-IDF untuk mengkonversi data genre menjadi vektor
-tfidf = TfidfVectorizer(stop_words='english')
-tfidf_matrix = tfidf.fit_transform(movies['genres'])
-
-# Menghitung kemiripan kosinus antar film
-cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-```
+1. Menghitung cosine similarity antar film berdasarkan vektor TF-IDF yang sudah dibuat pada tahap Data Preparation
+2. Membuat fungsi rekomendasi yang mengembalikan top-N film yang paling mirip dengan film yang ditentukan
 
 **Contoh rekomendasi untuk "Star Wars (1977)"**:
 
@@ -419,9 +424,9 @@ Formula:
 $\text{Accuracy} = \frac{\text{Jumlah prediksi yang akurat}}{\text{Total prediksi}}$
 
 **Hasil evaluasi collaborative filtering**:
-- RMSE: 0.9699
-- MAE: 0.7513
-- Accuracy: 0.4252
+- RMSE: 0.9763
+- MAE: 0.7544
+- Accuracy: 0.4236
 
 ### 3. Perbandingan Pendekatan
 
@@ -431,7 +436,7 @@ Kedua pendekatan sistem rekomendasi memiliki kekuatan dan kelemahan masing-masin
 
 **Collaborative Filtering** dapat menemukan pola tersembunyi dari interaksi pengguna-item dan memberikan rekomendasi yang lebih bervariasi. Namun, memiliki masalah cold start dan tidak bisa merekomendasikan item baru.
 
-Hasil evaluasi menunjukkan bahwa collaborative filtering dengan deep learning memberikan performa dengan accuracy 42.52% dan RMSE 0.9699 (dalam skala 1-5). Nilai RMSE mendekati 1 mengindikasikan bahwa model memiliki error prediksi rating sekitar 1 poin pada skala 1-5. Performa ini menunjukkan sedikit peningkatan dibandingkan pengujian sebelumnya (RMSE 0.9763, accuracy 42.36%), yang kemungkinan disebabkan oleh optimasi hyperparameter dan manajemen seed yang lebih baik untuk stabilitas training. Meskipun peningkatan relatif kecil, hal ini menunjukkan bahwa kualitas training neural network sangat dipengaruhi oleh inisialisasi dan stabilitas proses pelatihan. Accuracy yang masih di bawah 50% menunjukkan bahwa model masih memiliki ruang untuk peningkatan, terutama dalam menangani sparsitas data, kompleksitas pola preferensi pengguna, atau mempertimbangkan arsitektur model yang lebih canggih. Content-based filtering tetap efektif dalam merekomendasikan film dengan genre serupa, dengan average precision sekitar 60-70%.
+Hasil evaluasi menunjukkan bahwa collaborative filtering dengan deep learning memberikan performa dengan accuracy 42.36% dan RMSE 0.9763 (dalam skala 1-5). Nilai RMSE mendekati 1 mengindikasikan bahwa model memiliki error prediksi rating sekitar 1 poin pada skala 1-5., yang kemungkinan disebabkan oleh optimasi hyperparameter dan manajemen seed yang lebih baik untuk stabilitas training. Meskipun peningkatan relatif kecil, hal ini menunjukkan bahwa kualitas training neural network sangat dipengaruhi oleh inisialisasi dan stabilitas proses pelatihan. Accuracy yang masih di bawah 50% menunjukkan bahwa model masih memiliki ruang untuk peningkatan, terutama dalam menangani sparsitas data, kompleksitas pola preferensi pengguna, atau mempertimbangkan arsitektur model yang lebih canggih. Content-based filtering tetap efektif dalam merekomendasikan film dengan genre serupa, dengan average precision sekitar 60-70%.
 
 Untuk sistem rekomendasi yang optimal, pendekatan hybrid yang menggabungkan kekuatan kedua metode dapat menjadi solusi yang lebih baik.
 
